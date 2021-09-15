@@ -30,7 +30,7 @@ void InicializaLexer(char *arqFonte) {
 }
 
 bool isEOF() {
-    return !(pos < buffer->tam - 1);
+    return !(pos <= buffer->tam - 1);
 }
 
 char* TextoToken(long ini, long fim) {
@@ -64,6 +64,10 @@ Token* ProximoToken() {
     while (!isEOF() && isspace(buffer->cont[pos]))
         pos++;
 
+    if(buffer->cont[pos] == '#') {
+        while (buffer->cont[pos++] != '\n');
+    }
+
     if (isEOF()) {
         tok->tipo = TOKEN_EOF;
         tok->valor = 0;
@@ -90,7 +94,7 @@ Token* ProximoToken() {
     } else if (isdigit(buffer->cont[pos])) {
 
         long initPos = pos;
-        // TODO: verificar se existe erro léxico no final do literal inteiro
+
         while (!isEOF() && isdigit(buffer->cont[pos]))
             pos++;
         char *texto = TextoToken(initPos, pos);
@@ -98,10 +102,13 @@ Token* ProximoToken() {
         tok->valor = atoi(texto);
         free(texto);
 
-        //error de número literal
-        if(!isspace(buffer->cont[pos]) && !issymbol(buffer->cont[pos])){
+        //erro de número literal
+        //se junto do número tem algo que não seja um espaço, símbolo conhecido ou fim de string, trata como erro
+        if(!isspace(buffer->cont[pos]) && !issymbol(buffer->cont[pos]) && buffer->cont[pos] != '\0'){
             tok->tipo = TOKEN_ERRO;
             tok->valor = NUMBER_ERROR;
+            //caractere junto do número é tratado junto do número
+            pos++;
         }
 
         //símbolo
