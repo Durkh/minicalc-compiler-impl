@@ -1,3 +1,1 @@
-print 3
-#alksjdaksjdklasd
-print 9
+print (4 + (2 * 3))

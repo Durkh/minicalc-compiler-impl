@@ -50,7 +50,7 @@ char* TextoToken(long ini, long fim) {
     return str;
 }
 
-bool issymbol(char c) {
+bool isValidSymbol(char c) {
     return (c == '(' || c == ')' || c == '+' || c == '*' || c == '-' || c == '/' || c == '[' || c == ']');
 }
 
@@ -99,12 +99,12 @@ Token* ProximoToken() {
             pos++;
         char *texto = TextoToken(initPos, pos);
         tok->tipo = TOKEN_INT;
-        tok->valor = atoi(texto);
+        tok->valor = atol(texto);
         free(texto);
 
         //erro de número literal
         //se junto do número tem algo que não seja um espaço, símbolo conhecido ou fim de string, trata como erro
-        if(!isspace(buffer->cont[pos]) && !issymbol(buffer->cont[pos]) && buffer->cont[pos] != '\0'){
+        if(!isspace(buffer->cont[pos]) && !isValidSymbol(buffer->cont[pos]) && buffer->cont[pos] != '\0'){
             tok->tipo = TOKEN_ERRO;
             tok->valor = NUMBER_ERROR;
             //caractere junto do número é tratado junto do número
@@ -112,7 +112,7 @@ Token* ProximoToken() {
         }
 
         //símbolo
-    } else if (issymbol(buffer->cont[pos])) {
+    } else if (isValidSymbol(buffer->cont[pos])) {
 
         tok->tipo = TOKEN_SYMBOL;
         tok->valor = (int)buffer->cont[pos];

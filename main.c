@@ -26,16 +26,16 @@ void ImprimeToken(Token* t) {
             printf(" - Valor do token: %c\n", (char)t->valor);
             break;
         case TOKEN_ERRO:
-            printf("TOKEN_ERRO\n");
+            printf("TOKEN_ERRO");
             switch (t->valor) {
                 case SYMBOL_ERROR:
-                    printf("- Erro de símbolo\n");
+                    printf(" - Erro de símbolo\n");
                     break;
                 case NUMBER_ERROR:
-                    printf("- Erro de número\n");
+                    printf(" - Erro de número\n");
                     break;
                 default:
-                    puts("Erro desconhecido");
+                    puts("- Erro desconhecido");
             }
             break;
         default:
