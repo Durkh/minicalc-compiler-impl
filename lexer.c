@@ -26,7 +26,7 @@ void InicializaLexer(char *arqFonte) {
     }
 
     tok->tipo = TOKEN_EOF;
-    tok->valor = 0;
+    tok->valor.longI = 0;
 }
 
 bool isEOF() {
@@ -70,7 +70,7 @@ Token* ProximoToken() {
 
     if (isEOF()) {
         tok->tipo = TOKEN_EOF;
-        tok->valor = 0;
+        tok->valor.longI = 0;
 
         //texto
     } else if (isalpha(buffer->cont[pos])) {
@@ -83,10 +83,10 @@ Token* ProximoToken() {
         if (strcmp(texto, "print") == 0)
         {
             tok->tipo = TOKEN_PRINT;
-            tok->valor = 0;
+            tok->valor.longI = 0;
         } else {
             tok->tipo = TOKEN_ERRO;
-            tok->valor = 0;
+            tok->valor.error = TEXT_ERROR;
         }
         free(texto);
 
@@ -95,18 +95,37 @@ Token* ProximoToken() {
 
         long initPos = pos;
 
-        while (!isEOF() && isdigit(buffer->cont[pos]))
+        while(1) {
+
+            while (!isEOF() && isdigit(buffer->cont[pos]))
+                pos++;
+
+            char *texto = TextoToken(initPos, pos);
+
+            if(buffer->cont[pos] != '.'){
+                tok->tipo = TOKEN_INT;
+                tok->valor.longI = atol(texto);
+                free(texto);
+                break;
+            }
+
             pos++;
-        char *texto = TextoToken(initPos, pos);
-        tok->tipo = TOKEN_INT;
-        tok->valor = atol(texto);
-        free(texto);
+            while (!isEOF() && isdigit(buffer->cont[pos]))
+                pos++;
+
+            texto = TextoToken(initPos, pos);
+            tok->tipo = TOKEN_FLOAT;
+            tok->valor.doubleF = strtod(texto, NULL);
+            free(texto);
+            break;
+        }
+
 
         //erro de número literal
         //se junto do número tem algo que não seja um espaço, símbolo conhecido ou fim de string, trata como erro
         if(!isspace(buffer->cont[pos]) && !isValidSymbol(buffer->cont[pos]) && buffer->cont[pos] != '\0'){
             tok->tipo = TOKEN_ERRO;
-            tok->valor = NUMBER_ERROR;
+            tok->valor.error = NUMBER_ERROR;
             //caractere junto do número é tratado junto do número
             pos++;
         }
@@ -115,13 +134,13 @@ Token* ProximoToken() {
     } else if (isValidSymbol(buffer->cont[pos])) {
 
         tok->tipo = TOKEN_SYMBOL;
-        tok->valor = (int)buffer->cont[pos];
+        tok->valor.longI = (int)buffer->cont[pos];
 
         pos++;
 
     } else {
         tok->tipo = TOKEN_ERRO;
-        tok->valor = SYMBOL_ERROR;
+        tok->valor.error = SYMBOL_ERROR;
         pos++;
     }
 

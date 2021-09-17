@@ -7,6 +7,7 @@
 
 typedef enum tagTipoToken {
     TOKEN_INT,
+    TOKEN_FLOAT,
     TOKEN_PRINT,
     TOKEN_ERRO,
     TOKEN_SYMBOL,
@@ -15,12 +16,19 @@ typedef enum tagTipoToken {
 
 typedef enum {
    SYMBOL_ERROR,
-   NUMBER_ERROR
+   NUMBER_ERROR,
+   TEXT_ERROR
 } ErrorType;
 
 typedef struct tagToken {
     TipoToken   tipo;
-    long        valor;
+
+    union {
+        int     error;
+        int64_t longI;
+        double  doubleF;
+    } valor;
+
 } Token;
 
 

@@ -13,7 +13,11 @@ void ImprimeToken(Token* t) {
     switch(t->tipo) {
         case TOKEN_INT:
             printf("TOKEN_INT");
-            printf(" - Valor do token: %li\n", t->valor);
+            printf(" - valor do token: %li\n", t->valor.longI);
+            break;
+        case TOKEN_FLOAT:
+            printf("TOKEN_FLOAT");
+            printf(" - valor do token: %lf\n", t->valor.doubleF);
             break;
         case TOKEN_PRINT:
             printf("TOKEN_PRINT\n");
@@ -23,11 +27,11 @@ void ImprimeToken(Token* t) {
             break;
         case TOKEN_SYMBOL:
             printf("TOKEN_SYMBOL");
-            printf(" - Valor do token: %c\n", (char)t->valor);
+            printf(" - valor do token: %c\n", (char)t->valor.longI);
             break;
         case TOKEN_ERRO:
             printf("TOKEN_ERRO");
-            switch (t->valor) {
+            switch (t->valor.error) {
                 case SYMBOL_ERROR:
                     printf(" - Erro de símbolo\n");
                     break;
