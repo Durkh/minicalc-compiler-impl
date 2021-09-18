@@ -23,6 +23,7 @@ typedef enum {
 typedef struct tagToken {
     TipoToken   tipo;
 
+    //união de 64 bits
     union {
         int     error;
         int64_t longI;

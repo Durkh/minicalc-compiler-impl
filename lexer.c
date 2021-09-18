@@ -29,11 +29,11 @@ void InicializaLexer(char *arqFonte) {
     tok->valor.longI = 0;
 }
 
-bool isEOF() {
-    return !(pos <= buffer->tam - 1);
+bool inline static isEOF() {
+    return pos > buffer->tam - 1;
 }
 
-char* TextoToken(long ini, long fim) {
+static char* TextoToken(long ini, long fim) {
     char *str = (char*) malloc(fim - ini + 1);
 
     if (str == NULL) {
@@ -50,8 +50,47 @@ char* TextoToken(long ini, long fim) {
     return str;
 }
 
-bool isValidSymbol(char c) {
-    return (c == '(' || c == ')' || c == '+' || c == '*' || c == '-' || c == '/' || c == '[' || c == ']');
+bool inline static isValidSymbol(char c) {
+    return (c == '(' || c == ')' || c == '+' || c == '*' ||
+            c == '-' || c == '/' || c == '[' || c == ']');
+}
+
+void inline static FetchNumber(){
+
+    long initPos = pos;
+
+    while (!isEOF() && isdigit(buffer->cont[pos]))
+        pos++;
+
+    char *texto = TextoToken(initPos, pos);
+
+    //se não tem um ponto após o número, então é inteiro
+    if(buffer->cont[pos] != '.'){
+
+        tok->tipo = TOKEN_INT;
+        tok->valor.longI = atol(texto);
+        //cleanup no fim da função
+        goto cleanup;
+
+    }
+
+    //pula o ponto
+    pos++;
+    //coloca o pos no fim do número fracionário
+    while (!isEOF() && isdigit(buffer->cont[pos]))
+        pos++;
+
+    //pega toda a string de ponto flutuante
+    texto = TextoToken(initPos, pos);
+    tok->tipo = TOKEN_FLOAT;
+    tok->valor.doubleF = strtod(texto, NULL);
+
+    //rótulo de limpeza para evitar código repetido durante a função
+    cleanup:
+    //libera as variáveis dinámicas e retorna da função
+
+    free(texto);
+    //return
 }
 
 // função: ProximoToken
@@ -93,33 +132,8 @@ Token* ProximoToken() {
         //número
     } else if (isdigit(buffer->cont[pos])) {
 
-        long initPos = pos;
-
-        while(1) {
-
-            while (!isEOF() && isdigit(buffer->cont[pos]))
-                pos++;
-
-            char *texto = TextoToken(initPos, pos);
-
-            if(buffer->cont[pos] != '.'){
-                tok->tipo = TOKEN_INT;
-                tok->valor.longI = atol(texto);
-                free(texto);
-                break;
-            }
-
-            pos++;
-            while (!isEOF() && isdigit(buffer->cont[pos]))
-                pos++;
-
-            texto = TextoToken(initPos, pos);
-            tok->tipo = TOKEN_FLOAT;
-            tok->valor.doubleF = strtod(texto, NULL);
-            free(texto);
-            break;
-        }
-
+        //pega o número da string e o coloca em Tok
+        FetchNumber();
 
         //erro de número literal
         //se junto do número tem algo que não seja um espaço, símbolo conhecido ou fim de string, trata como erro
