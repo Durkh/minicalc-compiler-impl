@@ -69,28 +69,22 @@ void inline static FetchNumber(){
 
         tok->tipo = TOKEN_INT;
         tok->valor.longI = atol(texto);
-        //cleanup no fim da função
-        goto cleanup;
+       
+    }else{
 
-    }
-
-    //pula o ponto
-    pos++;
-    //coloca o pos no fim do número fracionário
-    while (!isEOF() && isdigit(buffer->cont[pos]))
+        //pula o ponto
         pos++;
+        //coloca o pos no fim do número fracionário
+        while (!isEOF() && isdigit(buffer->cont[pos]))
+            pos++;
 
-    //pega toda a string de ponto flutuante
-    texto = TextoToken(initPos, pos);
-    tok->tipo = TOKEN_FLOAT;
-    tok->valor.doubleF = strtod(texto, NULL);
-
-    //rótulo de limpeza para evitar código repetido durante a função
-    cleanup:
-    //libera as variáveis dinámicas e retorna da função
-
+        //pega toda a string de ponto flutuante
+        texto = TextoToken(initPos, pos);
+        tok->tipo = TOKEN_FLOAT;
+        tok->valor.doubleF = strtod(texto, NULL);
+    }
+    
     free(texto);
-    //return
 }
 
 // função: ProximoToken
