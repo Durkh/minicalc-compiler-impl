@@ -63,10 +63,12 @@ Expressao* AnaliseExpressao() {
         return res;
     }
 
-    if (t->tipo != TOKEN_SYMBOL && t->valor.longI != '(') {
-        fprintf(stderr, "Erro sintatico: '(' esperado");
+    if (t->tipo != TOKEN_SYMBOL && (t->valor.longI != '(' && t->valor.longI != '[')) {
+        fprintf(stderr, "Erro sintatico: '(' ou ']' esperado");
         exit(2);
     }
+
+    char delim = (char)t->valor.longI;
 
     // primeiro operando
     res->op1 = AnaliseExpressao(); // Expressao*
@@ -74,13 +76,25 @@ Expressao* AnaliseExpressao() {
     // operador
     t = ProximoToken();
 
-    if (t->tipo != TOKEN_SYMBOL && (t->valor.longI != '+' && t->valor.longI != '*') ) {
+    if (t->tipo == TOKEN_SYMBOL) {
+        switch (t->valor.longI) {
+            case '+':
+                res->oper = OPER_SOMA;
+                break;
+            case '*':
+                res->oper = OPER_MULT;
+                break;
+            case '-':
+                res->oper = OPER_SUB;
+                break;
+            case '/':
+                res->oper = OPER_DIV;
+                break;
+        }
+    }else{
         fprintf(stderr, "Erro sintatico: operador esperado");
         exit(2);
     }
-
-    //TODO switch case
-    res->oper = (t->tipo == TOKEN_SYMBOL && t->valor.longI == '+' ? OPER_SOMA : OPER_MULT);
 
     // segundo operando
     res->op2 = AnaliseExpressao();
@@ -88,9 +102,24 @@ Expressao* AnaliseExpressao() {
     // parentese fechando
     t = ProximoToken();
 
-    if (t->tipo != TOKEN_SYMBOL && t->valor.longI != ')') {
-        fprintf(stderr, "Erro sintatico: ')' esperado");
-        exit(2);
+    if (t->tipo == TOKEN_SYMBOL) {
+        switch (delim) {
+        case '(':
+            if ((char)t->valor.longI != ')') {
+                fprintf(stderr, "Erro sintatico: ')' esperado");
+                exit(2);
+            }
+            break;
+        case '[':
+            if ((char)t->valor.longI != ']') {
+                fprintf(stderr, "Erro sintatico: ']' esperado");
+                exit(2);
+            }
+            break;
+        default:
+           fprintf(stderr, "Erro sintatico: Símbolo desconhecido");
+           exit(2);
+        }
     }
 
     return res;
