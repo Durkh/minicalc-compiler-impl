@@ -1,37 +1,92 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <assert.h>
 
 #include "arq.h"
 #include "lexer.h"
 #include "parser.h"
 
-int AvaliaExpressao(Expressao* e) {
-    int res = 0;
-    int v1, v2;
+typedef struct {
+    bool isInteger;
+    union {
+        int64_t integer;
+        double floating;
+    }valor;
+}ExprRes;
+
+ExprRes AvaliaExpressao(Expressao* e) {
+    ExprRes res;
+    ExprRes v1, v2;
 
     switch (e->oper) {
         case OPER_CONST:
-            res = e->valor;
+            res.isInteger = e->integer;
+            if(res.isInteger) {
+                res.valor.integer = e->valor.longI;
+            }else {
+                res.valor.floating = e->valor.doubleF;
+            }
             break;
         case OPER_SOMA:
+            res.isInteger = e->integer;
             v1 = AvaliaExpressao(e->op1);
             v2 = AvaliaExpressao(e->op2);
-            res = v1 + v2;
+            if (v1.isInteger && v2.isInteger){
+                res.valor.integer = v1.valor.integer + v2.valor.integer;
+            }else{
+                res.valor.floating = v1.valor.floating + v2.valor.floating;
+            }
             break;
         case OPER_MULT:
+            res.isInteger = e->integer;
             v1 = AvaliaExpressao(e->op1);
             v2 = AvaliaExpressao(e->op2);
-            res = v1 * v2;
+            if (v1.isInteger && v2.isInteger){
+                res.valor.integer = v1.valor.integer * v2.valor.integer;
+            }else{
+                res.valor.floating = v1.valor.floating * v2.valor.floating;
+            }
             break;
         case OPER_SUB:
+            res.isInteger = e->integer;
             v1 = AvaliaExpressao(e->op1);
             v2 = AvaliaExpressao(e->op2);
-            res = v1 - v2;
+            if (v1.isInteger && v2.isInteger){
+                res.valor.integer = v1.valor.integer - v2.valor.integer;
+            }else{
+                res.valor.floating = v1.valor.floating - v2.valor.floating;
+            }
             break;
         case OPER_DIV:
+            res.isInteger = e->integer;
             v1 = AvaliaExpressao(e->op1);
             v2 = AvaliaExpressao(e->op2);
-            res = v1 / v2;
+            if (v1.isInteger && v2.isInteger){
+                res.valor.integer = v1.valor.integer / v2.valor.integer;
+            }else{
+                res.valor.floating = v1.valor.floating / v2.valor.floating;
+            }
+            break;
+        case OPER_MOD:
+            res.isInteger = e->integer;
+
+            assert(res.isInteger);
+
+            v1 = AvaliaExpressao(e->op1);
+            v2 = AvaliaExpressao(e->op2);
+
+            res.valor.integer = v1.valor.integer % v2.valor.integer;
+            break;
+        case OPER_POW:
+            res.isInteger = false;
+            v1 = AvaliaExpressao(e->op1);
+            v2 = AvaliaExpressao(e->op2);
+            if (v1.isInteger && v2.isInteger){
+                res.valor.floating = pow(v1.valor.integer, v2.valor.integer);
+            }else{
+                res.valor.floating = pow(v1.valor.floating, v2.valor.floating);
+            }
             break;
         default:
             printf("Operador nao reconhecido.\n");
@@ -46,9 +101,12 @@ int main() {
     // arvore sintatica do programa
     Programa *p = AnalisePrograma();
 
-    int resultado = AvaliaExpressao(p->e);
+    ExprRes resultado = AvaliaExpressao(p->e);
 
-    printf("%d\n", resultado);
+    if(resultado.isInteger)
+        printf("%li\n", resultado.valor.integer);
+    else
+        printf("%lf\n", resultado.valor.floating);
 
     DestroiPrograma(p);
     FinalizaLexer();

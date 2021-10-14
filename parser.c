@@ -57,7 +57,15 @@ Expressao* AnaliseExpressao() {
     // se proximo token for constante inteira, retorne expressao constante
     if (t->tipo == TOKEN_INT) {
         res->oper = OPER_CONST;
-        res->valor = t->valor.longI;
+        res->valor.longI = t->valor.longI;
+        res->op1 = NULL;
+        res->op2 = NULL;
+        return res;
+    }
+
+    if(t->tipo == TOKEN_FLOAT){
+        res->oper = OPER_CONST;
+        res->valor.doubleF = t->valor.doubleF;
         res->op1 = NULL;
         res->op2 = NULL;
         return res;
@@ -76,19 +84,29 @@ Expressao* AnaliseExpressao() {
     // operador
     t = ProximoToken();
 
+    char buf = '\0';
     if (t->tipo == TOKEN_SYMBOL) {
         switch (t->valor.longI) {
             case '+':
                 res->oper = OPER_SOMA;
                 break;
             case '*':
-                res->oper = OPER_MULT;
+                buf = proximoChar();
+                if(buf == '*'){
+                    res->oper = OPER_POW;
+                    t = ProximoToken();
+                }else {
+                    res->oper = OPER_MULT;
+                }
                 break;
             case '-':
                 res->oper = OPER_SUB;
                 break;
             case '/':
                 res->oper = OPER_DIV;
+                break;
+            case '%':
+                res->oper = OPER_MOD;
                 break;
         }
     }else{
@@ -98,6 +116,11 @@ Expressao* AnaliseExpressao() {
 
     // segundo operando
     res->op2 = AnaliseExpressao();
+
+    if(res->oper == OPER_MOD && !res->op2->integer){
+        fprintf(stderr, "Erro sintático: módulo entre ponto flutuante não suportado");
+        exit(2);
+    }
 
     // parentese fechando
     t = ProximoToken();
@@ -132,6 +155,8 @@ void DestroiExpressao(Expressao *e) {
         case OPER_MULT:
         case OPER_DIV:
         case OPER_SUB:
+        case OPER_MOD:
+        case OPER_POW:
             DestroiExpressao(e->op1);
             DestroiExpressao(e->op2);
             e->op1 = NULL;

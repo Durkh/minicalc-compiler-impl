@@ -52,7 +52,8 @@ static char* TextoToken(long ini, long fim) {
 
 bool inline static isValidSymbol(char c) {
     return (c == '(' || c == ')' || c == '+' || c == '*' ||
-            c == '-' || c == '/' || c == '[' || c == ']');
+            c == '-' || c == '/' || c == '[' || c == ']' ||
+            c == '%');
 }
 
 void inline static FetchNumber(){
@@ -153,6 +154,14 @@ Token* ProximoToken() {
     }
 
     return tok;
+}
+
+char proximoChar(){
+    char buf = buffer->cont[pos];
+    if(isValidSymbol(buf))
+        return buf;
+    else
+        return '\0';
 }
 
 void FinalizaLexer() {

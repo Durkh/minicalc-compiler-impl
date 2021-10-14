@@ -35,6 +35,7 @@ typedef struct tagToken {
 
 void InicializaLexer(char *arqFonte);
 Token* ProximoToken();
+char proximoChar();
 void FinalizaLexer();
 
 
