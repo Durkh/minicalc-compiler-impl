@@ -6,6 +6,7 @@
 #define MINICALC_PARSER_H
 
 #include <stdbool.h>
+#include "lexer.h"
 
 typedef enum tagTipoOper {
     OPER_SOMA,
@@ -14,7 +15,8 @@ typedef enum tagTipoOper {
     OPER_DIV,
     OPER_POW,
     OPER_MOD,
-    OPER_CONST
+    OPER_CONST,
+    OPER_VAR
 } TipoOper;
 
 typedef struct tagExpressao {
@@ -24,6 +26,7 @@ typedef struct tagExpressao {
     union {
         int64_t longI;
         double  doubleF;
+        char nomeIdent[IDENT_TAM_MAX];
     } valor;
     bool integer;
 
@@ -31,7 +34,14 @@ typedef struct tagExpressao {
 
 } Expressao;
 
+typedef struct tagDeclaracao {
+    char nomeIdent[IDENT_TAM_MAX];
+    Expressao *e;
+    struct tagDeclaracao* next;
+} Declaracao;
+
 typedef struct tagPrograma {
+    Declaracao *decls;
     Expressao *e;
 } Programa;
 

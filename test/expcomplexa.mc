@@ -1,1 +1,2 @@
-print (5 + 4)
+var x = 2;
+print (22 / x)

@@ -5,9 +5,13 @@
 #ifndef MINICALC_LEXER_H
 #define MINICALC_LEXER_H
 
+#define IDENT_TAM_MAX  60
+
 typedef enum tagTipoToken {
     TOKEN_INT,
     TOKEN_FLOAT,
+    TOKEN_VAR,
+    TOKEN_IDENT,
     TOKEN_PRINT,
     TOKEN_ERRO,
     TOKEN_SYMBOL,
@@ -30,6 +34,7 @@ typedef struct tagToken {
         double  doubleF;
     } valor;
 
+    char        nome[IDENT_TAM_MAX];
 } Token;
 
 

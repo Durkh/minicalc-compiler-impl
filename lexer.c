@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
+#include <assert.h>
+
 #include "arq.h"
 #include "lexer.h"
 
@@ -53,7 +55,7 @@ static char* TextoToken(long ini, long fim) {
 bool inline static isValidSymbol(char c) {
     return (c == '(' || c == ')' || c == '+' || c == '*' ||
             c == '-' || c == '/' || c == '[' || c == ']' ||
-            c == '%');
+            c == '%' || c == '=' || c == ';');
 }
 
 void inline static FetchNumber(){
@@ -64,6 +66,7 @@ void inline static FetchNumber(){
         pos++;
 
     char *texto = TextoToken(initPos, pos);
+    assert(texto != NULL);
 
     //se não tem um ponto após o número, então é inteiro
     if(buffer->cont[pos] != '.'){
@@ -110,17 +113,21 @@ Token* ProximoToken() {
     } else if (isalpha(buffer->cont[pos])) {
 
         long initPos = pos;
-        while (!isEOF() && !isspace(buffer->cont[pos]))
+        while (!isEOF() && !isspace(buffer->cont[pos]) && !isValidSymbol(buffer->cont[pos]))
             pos++;
         // texto do token: entre initPos e pos-1 no buffer
         char *texto = TextoToken(initPos, pos);
-        if (strcmp(texto, "print") == 0)
-        {
+        assert(texto != NULL);
+
+        if (strcmp(texto, "print") == 0) {
             tok->tipo = TOKEN_PRINT;
             tok->valor.longI = 0;
+        }else if (strcmp(texto, "var") == 0) {
+            tok->tipo = TOKEN_VAR;
+            tok->valor.longI = 0;
         } else {
-            tok->tipo = TOKEN_ERRO;
-            tok->valor.error = TEXT_ERROR;
+            tok->tipo = TOKEN_IDENT;
+            strcpy(tok->nome, texto);
         }
         free(texto);
 

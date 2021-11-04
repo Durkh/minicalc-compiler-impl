@@ -10,11 +10,51 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "parser.h"
 #include "lexer.h"
 
 Token *t;
+
+Declaracao* AnaliseDeclaracao() {
+    t = ProximoToken();
+
+    if (t->tipo != TOKEN_VAR)
+        return NULL;
+
+    Declaracao *res = (Declaracao*) malloc(sizeof(Declaracao));
+
+    t = ProximoToken();
+
+    if (t->tipo != TOKEN_IDENT) {
+        fprintf(stderr, "Erro de sintaxe: identificador esperado\n");
+        free(res);
+        exit(2);
+    }
+
+    strcpy(res->nomeIdent, t->nome);
+
+    t = ProximoToken();
+
+    if (t->tipo != TOKEN_SYMBOL && t->valor.longI != '=') {
+        fprintf(stderr, "Erro de sintaxe: '=' esperado\n");
+        free(res);
+        exit(2);
+    }
+
+    res->e = AnaliseExpressao();
+
+    t = ProximoToken();
+
+    if (t->tipo != TOKEN_SYMBOL && t->valor.longI != ';') {
+        fprintf(stderr, "Erro de sintaxe: ';' esperado no final da declaracao\n");
+        free(res);
+        exit(2);
+    }
+
+    return res;
+}
 
 // Analisador sintático do programa
 // Assume que o analisador léxico foi inicializado com o código-fonte
@@ -26,8 +66,19 @@ Programa* AnalisePrograma() {
         exit(1);
     }
 
-    // verifica se o programa começa com palavra-chave 'print'
-    t = ProximoToken();
+    Declaracao *orig = AnaliseDeclaracao();   // origem da lista encadeada
+    Declaracao *d = orig;
+    if (d != NULL) {
+        Declaracao *d2 = AnaliseDeclaracao();
+        while (d2 != NULL) {
+            d->next = d2;
+            d = d2;
+            d2 = AnaliseDeclaracao();
+        }
+        d->next = NULL;
+    }
+
+    res->decls = orig;
 
     if (t->tipo != TOKEN_PRINT) {
         fprintf(stderr, "Erro sintatico: palavra-chave 'print' esperada no inicio do programa.");
@@ -37,12 +88,6 @@ Programa* AnalisePrograma() {
     // analisa a expressao seguinte
     res->e = AnaliseExpressao();
 
-//    t = ProximoToken();
-//
-//    if (t->tipo != TOKEN_EOF) {
-//        fprintf(stderr, "Erro sintatico: entrada adicional apos fim do programa.");
-//        exit(2);
-//    }
 
     return res;
 }
@@ -59,6 +104,15 @@ Expressao* AnaliseExpressao() {
         res->oper = OPER_CONST;
         res->valor.longI = t->valor.longI;
         res->integer = true;
+        res->op1 = NULL;
+        res->op2 = NULL;
+        return res;
+    }
+
+    if(t->tipo == TOKEN_IDENT){
+        res->oper = OPER_VAR;
+        res->valor.longI = 0;
+        strcpy(res->valor.nomeIdent, t->nome);
         res->op1 = NULL;
         res->op2 = NULL;
         return res;
@@ -168,6 +222,15 @@ void DestroiExpressao(Expressao *e) {
 
     }
 
+}
+
+void DestroiDeclaracoes(Declaracao *d) {
+    Declaracao *d2;
+    while (d != NULL) {
+        d2 = d->next;
+        free(d);
+        d = d2;
+    }
 }
 
 void DestroiPrograma(Programa *p) {
