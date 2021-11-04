@@ -58,6 +58,7 @@ Expressao* AnaliseExpressao() {
     if (t->tipo == TOKEN_INT) {
         res->oper = OPER_CONST;
         res->valor.longI = t->valor.longI;
+        res->integer = true;
         res->op1 = NULL;
         res->op2 = NULL;
         return res;
@@ -66,6 +67,7 @@ Expressao* AnaliseExpressao() {
     if(t->tipo == TOKEN_FLOAT){
         res->oper = OPER_CONST;
         res->valor.doubleF = t->valor.doubleF;
+        res->integer = false;
         res->op1 = NULL;
         res->op2 = NULL;
         return res;
