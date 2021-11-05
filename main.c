@@ -68,23 +68,19 @@ ExprRes AvaliaExpressao(Expressao* e) {
         case OPER_DIV:
             v1 = AvaliaExpressao(e->op1);
             v2 = AvaliaExpressao(e->op2);
-            if (v1.isInteger && v2.isInteger){
-                res.valor.integer = v1.valor.integer / v2.valor.integer;
-                res.isInteger = true;
-            }else{
-                res.valor.floating = (v1.isInteger? (double)v1.valor.integer : v1.valor.floating) /
-                                     (v2.isInteger? (double)v2.valor.integer : v2.valor.floating);
-            }
+
+            res.valor.floating = (v1.isInteger? (double)v1.valor.integer : v1.valor.floating) /
+                                 (v2.isInteger? (double)v2.valor.integer : v2.valor.floating);
             break;
         case OPER_MOD:
-            res.isInteger = e->integer;
-
-            assert(res.isInteger);
 
             v1 = AvaliaExpressao(e->op1);
             v2 = AvaliaExpressao(e->op2);
 
+            assert(v1.isInteger && v2.isInteger);
+
             res.valor.integer = v1.valor.integer % v2.valor.integer;
+            res.isInteger = true;
             break;
         case OPER_POW:
             res.isInteger = false;
@@ -121,7 +117,7 @@ void ProcessaDeclaracoes(Declaracao *d) {
 
 
 int main() {
-    InicializaLexer("../test/test2.mc");
+    InicializaLexer("../test/test5.mc");
 
     // arvore sintatica do programa
     Programa *p = AnalisePrograma();
