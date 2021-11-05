@@ -12,6 +12,8 @@ ExprRes AvaliaExpressao(Expressao* e) {
     ExprRes res;
     ExprRes v1, v2;
 
+    res.isInteger = false;
+
     switch (e->oper) {
         case OPER_VAR:
             if(ConsultaVar(e->valor.nomeIdent, &v1)){
@@ -37,7 +39,8 @@ ExprRes AvaliaExpressao(Expressao* e) {
                 res.valor.integer = v1.valor.integer + v2.valor.integer;
                 res.isInteger = true;
             }else{
-                res.valor.floating = v1.valor.floating + v2.valor.floating;
+                res.valor.floating = (v1.isInteger? (double)v1.valor.integer : v1.valor.floating) +
+                                     (v2.isInteger? (double)v2.valor.integer : v2.valor.floating);
             }
             break;
         case OPER_MULT:
@@ -46,8 +49,9 @@ ExprRes AvaliaExpressao(Expressao* e) {
             if (v1.isInteger && v2.isInteger){
                 res.valor.integer = v1.valor.integer * v2.valor.integer;
                 res.isInteger = true;
-            }else{
-                res.valor.floating = v1.valor.floating * v2.valor.floating;
+            }else {
+                res.valor.floating = (v1.isInteger? (double)v1.valor.integer : v1.valor.floating) *
+                                     (v2.isInteger? (double)v2.valor.integer : v2.valor.floating);
             }
             break;
         case OPER_SUB:
@@ -57,7 +61,8 @@ ExprRes AvaliaExpressao(Expressao* e) {
                 res.valor.integer = v1.valor.integer - v2.valor.integer;
                 res.isInteger = true;
             }else{
-                res.valor.floating = v1.valor.floating - v2.valor.floating;
+                res.valor.floating = (v1.isInteger? (double)v1.valor.integer : v1.valor.floating) -
+                                     (v2.isInteger? (double)v2.valor.integer : v2.valor.floating);
             }
             break;
         case OPER_DIV:
@@ -67,7 +72,8 @@ ExprRes AvaliaExpressao(Expressao* e) {
                 res.valor.integer = v1.valor.integer / v2.valor.integer;
                 res.isInteger = true;
             }else{
-                res.valor.floating = v1.valor.floating / v2.valor.floating;
+                res.valor.floating = (v1.isInteger? (double)v1.valor.integer : v1.valor.floating) /
+                                     (v2.isInteger? (double)v2.valor.integer : v2.valor.floating);
             }
             break;
         case OPER_MOD:
@@ -87,7 +93,8 @@ ExprRes AvaliaExpressao(Expressao* e) {
             if (v1.isInteger && v2.isInteger){
                 res.valor.floating = pow(v1.valor.integer, v2.valor.integer);
             }else{
-                res.valor.floating = pow(v1.valor.floating, v2.valor.floating);
+                res.valor.floating = pow((v1.isInteger? (double)v1.valor.integer : v1.valor.floating),
+                                         (v2.isInteger? (double)v2.valor.integer : v2.valor.floating));
             }
             break;
         default:
@@ -114,7 +121,7 @@ void ProcessaDeclaracoes(Declaracao *d) {
 
 
 int main() {
-    InicializaLexer("../test/expcomplexa.mc");
+    InicializaLexer("../test/test2.mc");
 
     // arvore sintatica do programa
     Programa *p = AnalisePrograma();
