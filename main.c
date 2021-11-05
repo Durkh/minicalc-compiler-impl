@@ -22,11 +22,12 @@ ExprRes AvaliaExpressao(Expressao* e) {
             }
             break;
         case OPER_CONST:
-            if(res.isInteger) {
+            if(e->integer) {
                 res.valor.integer = e->valor.longI;
                 res.isInteger = true;
             }else {
                 res.valor.floating = e->valor.doubleF;
+                res.isInteger = false;
             }
             break;
         case OPER_SOMA:

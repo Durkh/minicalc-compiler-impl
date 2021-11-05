@@ -1,2 +1,2 @@
 var x = 2;
-print (22 / x)
+print (5 ** x)

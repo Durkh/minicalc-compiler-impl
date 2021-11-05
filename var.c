@@ -32,8 +32,10 @@ void AdicionaVar(char* nome, ExprRes valor) {
 
     if(valor.isInteger) {
         tabela[tamanho].valor.integer = valor.valor.integer;
+        tabela[tamanho].isInteger = true;
     } else{
         tabela[tamanho].valor.floating = valor.valor.floating;
+        tabela[tamanho].isInteger = false;
     }
 
     strcpy(tabela[tamanho].nome, nome);
