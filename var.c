@@ -45,11 +45,12 @@ void AdicionaVar(char* nome, ExprRes valor) {
 bool ConsultaVar(char* nome, ExprRes* valor) {
     for (int i = 0; i < tamanho; i++) {
         if (strcmp(nome, tabela[i].nome) == 0) {
-            if(valor->isInteger) {
+            if(tabela[i].isInteger) {
             valor->valor.integer = tabela[i].valor.integer;
             } else{
                 valor->valor.floating = tabela[i].valor.floating;
             }
+            valor->isInteger = tabela[i].isInteger;
             return true;
         }
     }
